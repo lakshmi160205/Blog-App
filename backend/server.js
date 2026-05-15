@@ -15,7 +15,13 @@ const app = exp();
 //port 
 const PORT=process.env.PORT || 4000;
 //use cors middleware
-app.use(cors({ origin: ["http://localhost:5173", "https://blog-app-ashen-three.vercel.app"],credentials:true }));
+app.use(cors({
+  origin: [
+    "http://localhost:5173",
+    "https://blog-gqpgu9pyl-lakshmi160205s-projects.vercel.app"
+  ],
+  credentials: true
+}));
 //add body parser middleware
 app.use(exp.json());
 //add cookie parser middleware
