@@ -1,125 +1,137 @@
-// import react stuff
-import React, { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import axios from 'axios'
-import BASE_URL from './config/baseAPI'
-// import styles
+import React from "react";
+import { useNavigate } from "react-router";
+import { useAuth } from "../store/authStore";
 import {
+  pageBackground,
   pageWrapper,
+  section,
+  cardClass,
   pageTitleClass,
+  headingClass,
   bodyText,
+  primaryBtn,
+  secondaryBtn,
+  linkClass,
   articleGrid,
   articleCardClass,
   articleTitle,
-  timestampClass,
-  ghostBtn,
-  loadingClass,
-  errorClass,
-  primaryBtn,
-} from '../styles/common'
+  articleExcerpt,
+  articleMeta,
+} from "../styles/common";
 
-// home component
 function Home() {
-  // state for articles
-  const [articles, setArticles] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+  const isAuthenticated = useAuth((state) => state.isAuthenticated);
+  const user = useAuth((state) => state.currentUser);
 
-  // fetch articles
-  useEffect(() => {
-    const fetchArticles = async () => {
-      try {
-        const res = await axios.get(`${BASE_URL}/common-api/articles`)
-        setArticles(res.data.payload || [])   //  FIX
-      } catch (err) {
-        setError(err.response?.data?.error || 'Failed to load articles')
-      } finally {
-        setLoading(false)
-      }
+  const handleGetStarted = () => {
+    if (isAuthenticated) {
+      navigate(user?.role === "AUTHOR" ? "/author-profile" : "/user-profile");
+    } else {
+      navigate("/register");
     }
-    fetchArticles()
-  }, [])
+  };
 
-  // format date
-  const formatDateIST = (date) => {
-    return new Date(date).toLocaleString('en-IN', {
-      timeZone: 'Asia/Kolkata',
-      dateStyle: 'medium',
-      timeStyle: 'short',
-    })
+  const handleExploreArticles = () => {
+  if (isAuthenticated) {
+    navigate(user?.role === "AUTHOR" ? "/author-profile" : "/user-profile");
+  } else {
+    navigate("/login");
   }
+};
 
-  // handle click
-  const handleArticleClick = (article) => {
-    navigate(`/article/${article._id}`, { state: article })
-  }
+  const features = [
+    {
+      title: "Write & Share",
+      description: "Create engaging articles and share your knowledge with the community.",
+      icon: "✍️",
+    },
+    {
+      title: "Discover Content",
+      description: "Explore diverse topics from technology to lifestyle and beyond.",
+      icon: "🔍",
+    },
+    {
+      title: "Connect & Learn",
+      description: "Engage with authors, leave comments, and grow together.",
+      icon: "🤝",
+    },
+  ];
 
-  // return the home page
+  const categories = [
+    { name: "Technology", count: "25+ articles", color: "bg-blue-100 text-blue-800" },
+    { name: "Programming", count: "18+ articles", color: "bg-green-100 text-green-800" },
+    { name: "AI & ML", count: "12+ articles", color: "bg-purple-100 text-purple-800" },
+    { name: "Web Development", count: "20+ articles", color: "bg-orange-100 text-orange-800" },
+  ];
+
   return (
-    <div className="bg-white min-h-screen">
-      {/* hero section */}
-      <div className="bg-[#f5f5f7] py-20 px-6 border-b border-[#e8e8ed]">
-        <div className="max-w-5xl mx-auto text-center">
-          <h1 className={`${pageTitleClass} text-6xl mb-4`}>Welcome to MyBlog</h1>
-          <p className={`${bodyText} text-lg max-w-2xl mx-auto mb-8`}>
-            Discover insightful stories, expert insights, and inspiring ideas from writers around the world.
+    <div className={pageBackground}>
+      {/* Hero Section */}
+      <div className={`${pageWrapper} text-center`}>
+        <div className="mb-16">
+          <h1 className={`${pageTitleClass} mb-6`}>
+            Welcome to <span className="text-[#0066cc]">MyBlog</span>
+          </h1>
+          <p className={`${bodyText} text-xl max-w-2xl mx-auto mb-8`}>
+            A platform where ideas come to life. Share your knowledge, discover new perspectives,
+            and connect with a community of passionate writers and readers.
           </p>
-          <div className="flex gap-4 justify-center flex-wrap">
-            <button onClick={() => navigate('/register')} className={primaryBtn}>
-              Get Started
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <button onClick={handleGetStarted} className={primaryBtn}>
+              {isAuthenticated ? "Go to Profile" : "Get Started"}
             </button>
-            <button
-              onClick={() => navigate('/#articles')}
-              className="border border-[#d2d2d7] text-[#1d1d1f] font-medium px-5 py-2.5 rounded-full hover:bg-[#f5f5f7] hover:border-[#0066cc] transition-all cursor-pointer text-sm"
-            >
+            <button onClick={handleExploreArticles} className={secondaryBtn}>
               Explore Articles
             </button>
           </div>
         </div>
-      </div>
 
-      {/* Articles Section */}
-      <div className={pageWrapper} id="articles">
-        <h2 className="text-3xl font-bold text-[#1d1d1f] mb-8">Latest Articles</h2>
-
-        {error && <p className={errorClass}>{error}</p>}
-
-        {loading ? (
-          <p className={loadingClass}>Loading articles...</p>
-        ) : articles?.length === 0 ? (
-          <p className="text-center text-[#a1a1a6] py-16">
-            No articles available yet
-          </p>
-        ) : (
+        {/* Features Section */}
+        <div className={section}>
+          <h2 className={`${headingClass} text-center mb-12`}>Why Choose MyBlog?</h2>
           <div className={articleGrid}>
-            {articles?.map((article) => (
-              <div className={articleCardClass} key={article._id}>
-                <div className="flex flex-col h-full">
-                  <div>
-                    <p className={articleTitle}>{article.title}</p>
-                    <p className={`${bodyText} text-sm mt-2`}>
-                      {article.content?.slice(0, 60)}...
-                    </p>
-                    <p className={timestampClass}>
-                      {formatDateIST(article.createdAt)}
-                    </p>
-                  </div>
-
-                  <button
-                    className={`${ghostBtn} mt-auto pt-4`}
-                    onClick={() => handleArticleClick(article)}
-                  >
-                    Read Article →
-                  </button>
-                </div>
+            {features.map((feature, index) => (
+              <div key={index} className={`${cardClass} text-center`}>
+                <div className="text-4xl mb-4">{feature.icon}</div>
+                <h3 className={`${articleTitle} mb-3`}>{feature.title}</h3>
+                <p className={articleExcerpt}>{feature.description}</p>
               </div>
             ))}
           </div>
-        )}
+        </div>
+
+        {/* Categories Section */}
+        <div className={section}>
+          <h2 className={`${headingClass} text-center mb-8`}>Popular Categories</h2>
+          <div className="flex flex-wrap justify-center gap-4">
+            {categories.map((category, index) => (
+              <div
+                key={index}
+                className={`${category.color} px-6 py-3 rounded-full text-sm font-medium cursor-pointer hover:opacity-80 transition-opacity`}
+              >
+                {category.name} • {category.count}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* CTA Section */}
+        <div className={`${section} bg-[#f5f5f7] rounded-3xl p-12 text-center`}>
+          <h2 className={`${headingClass} mb-4`}>Ready to Start Writing?</h2>
+          <p className={`${bodyText} mb-6 max-w-xl mx-auto`}>
+            Join our community of writers and share your unique perspective with the world.
+          </p>
+          <button
+            onClick={() => navigate("/register")}
+            className={primaryBtn}
+          >
+            Join as Author
+          </button>
+        </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default Home
+export default Home;
