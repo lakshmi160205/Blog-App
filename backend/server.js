@@ -18,7 +18,7 @@ const PORT=process.env.PORT || 4000;
 app.use(cors({
   origin: [
     "http://localhost:5173",
-    "https://blog-gqpgu9pyl-lakshmi160205s-projects.vercel.app"
+    "https://blog-app-iota-orcin.vercel.app"
   ],
   credentials: true
 }));
